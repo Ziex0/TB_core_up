@@ -720,11 +720,14 @@ CREATE TABLE `game_event_condition_save` (
 
 DROP TABLE IF EXISTS `game_event_save`;
 CREATE TABLE `game_event_save` (
-  `event_id` mediumint(8) unsigned NOT NULL,
-  `state` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `next_start` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	`eventEntry` TINYINT UNSIGNED NOT NULL,
+	`state` TINYINT UNSIGNED NOT NULL DEFAULT '1',
+	`next_start` INT UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (`eventEntry`) USING BTREE
+)
+COLLATE='utf8mb3_general_ci'
+ENGINE=InnoDB
+;
 
 --
 -- Dumping data for table `game_event_save`
