@@ -36,7 +36,7 @@
 #include <sys/file.h>
 #endif
 
-static const my_bool my_true = 1;
+static const bool my_true = 1;
 
 size_t Database::db_count = 0;
 
@@ -168,7 +168,7 @@ bool Database::Initialize(const char* infoString)
         Execute("SET CHARACTER SET `utf8`");
 
         #if MYSQL_VERSION_ID >= 50003
-        my_bool my_true = (my_bool)1;
+        bool my_true = (bool)1;
         if (mysql_options(mMysql, MYSQL_OPT_RECONNECT, &my_true))
             sLog.outDebug("Failed to turn on MYSQL_OPT_RECONNECT.");
         else
