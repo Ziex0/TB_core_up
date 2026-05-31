@@ -882,7 +882,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     // initialize data array
     memset(&m_creatureClassLvlStats, 0, sizeof(m_creatureClassLvlStats));
 
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basemana, basearmor, attackpower, rangedattackpower, basedamage_exp0, basedamage_exp1 FROM creature_classlevelstats");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT level, `class`, basehp0, basehp1, basemana, basearmor, attackpower, rangedattackpower, basedamage_exp0, basedamage_exp1 FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -2139,7 +2139,7 @@ void ObjectMgr::LoadPetLevelInfo()
     // Loading levels data
     {
         //                                                        0               1      2   3     4    5    6    7     8    9
-        QueryResult_AutoPtr result  = WorldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
+        QueryResult_AutoPtr result  = WorldDatabase.Query("SELECT creature_entry, `level`, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
 
         uint32 count = 0;
 
@@ -2238,7 +2238,7 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate
     {
         //                                                       0     1      2    3     4           5           6           7
-        QueryResult_AutoPtr result = WorldDatabase.Query("SELECT race, class, map, zone, position_x, position_y, position_z, orientation FROM playercreateinfo");
+        QueryResult_AutoPtr result = WorldDatabase.Query("SELECT race, `class`, map, zone, position_x, position_y, position_z, orientation FROM playercreateinfo");
 
         uint32 count = 0;
 
@@ -2322,7 +2322,7 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate items
     {
         //                                                       0     1      2       3
-        QueryResult_AutoPtr result = WorldDatabase.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
+        QueryResult_AutoPtr result = WorldDatabase.Query("SELECT race, `class`, itemid, amount FROM playercreateinfo_item");
 
         uint32 count = 0;
 
@@ -2384,9 +2384,9 @@ void ObjectMgr::LoadPlayerInfo()
 
         QueryResult_AutoPtr result = QueryResult_AutoPtr(NULL);
         if (sWorld.getConfig(CONFIG_START_ALL_SPELLS))
-            result = WorldDatabase.Query("SELECT race, class, Spell, Active FROM playercreateinfo_spell_custom");
+            result = WorldDatabase.Query("SELECT race, `class`, Spell, Active FROM playercreateinfo_spell_custom");
         else
-            result = WorldDatabase.Query("SELECT race, class, Spell, Active FROM playercreateinfo_spell");
+            result = WorldDatabase.Query("SELECT race, `class`, Spell, Active FROM playercreateinfo_spell");
 
         uint32 count = 0;
 
@@ -2431,7 +2431,7 @@ void ObjectMgr::LoadPlayerInfo()
     // Load playercreate actions
     {
         //                                                0     1      2       3       4     5
-        QueryResult_AutoPtr result = WorldDatabase.Query("SELECT race, class, button, action, type, misc FROM playercreateinfo_action");
+        QueryResult_AutoPtr result = WorldDatabase.Query("SELECT race, `class`, button, action, type, misc FROM playercreateinfo_action");
 
         uint32 count = 0;
 
@@ -2479,7 +2479,7 @@ void ObjectMgr::LoadPlayerInfo()
     // Loading levels data (class only dependent)
     {
         //                                                 0      1      2       3
-        QueryResult_AutoPtr result  = WorldDatabase.Query("SELECT class, level, basehp, basemana FROM player_classlevelstats");
+        QueryResult_AutoPtr result  = WorldDatabase.Query("SELECT class, `level`, basehp, basemana FROM player_classlevelstats");
 
         uint32 count = 0;
 
@@ -2556,7 +2556,7 @@ void ObjectMgr::LoadPlayerInfo()
     // Loading levels data (class/race dependent)
     {
         //                                                        0     1      2      3    4    5    6    7
-        QueryResult_AutoPtr result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
+        QueryResult_AutoPtr result  = WorldDatabase.Query("SELECT race, `class`, `level`, str, agi, sta, inte, spi FROM player_levelstats");
 
         uint32 count = 0;
 
@@ -2791,7 +2791,7 @@ void ObjectMgr::LoadGuilds()
             //   13                14               15                16               17                18
             "BankResetTimeTab3,BankRemSlotsTab3,BankResetTimeTab4,BankRemSlotsTab4,BankResetTimeTab5,BankRemSlotsTab5,"
             //   19               20                21                22               23                       24
-            "characters.name, characters.level, characters.class, characters.zone, characters.logout_time, characters.account "
+            "characters.name, characters.`level`, characters.`class`, characters.zone, characters.logout_time, characters.account "
             "FROM guild_member LEFT JOIN characters ON characters.guid = guild_member.guid ORDER BY guildid ASC");
 
     // load guild bank tab rights
@@ -3028,7 +3028,7 @@ void ObjectMgr::LoadGroups()
     uint64 leaderGuid = 0;
     uint32 count = 0;
     //                                                           0         1              2           3           4              5      6      7      8      9      10     11     12     13      14          15
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT mainTank, mainAssistant, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, isRaid, difficulty, leaderGuid FROM groups");
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT mainTank, mainAssistant, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, isRaid, difficulty, leaderGuid FROM `groups`");
 
     if (!result)
     {

@@ -23,15 +23,15 @@ INSTANTIATE_SINGLETON_1(Console);
 
 static const char sOregonLogo[] =
 {
-    "MMMMMMMMMMM                                             "
+    " **********                                             "
     "MMP     dMM                                             "
     "M' .mmm. `M                                             "
     "M  MMMMM  M 88d888b. .d8888b. .d8888b. .d8888b. 88d888b."
     "M  MMMMM  M 88'  `88 88ooood8 88'  `88 88'  `88 88'  `88"
     "M. `MMM' .M 88       88.  ... 88.  .88 88.  .88 88    88"
-    "MMb     dMM dP       `88888P' `8888P88 `88888P' dP    dP"
-    "MMMMMMMMMMM                        .88                  "
-    "                               d8888P"
+    "MMb     dMM dP       `******' `******* `88888P' dP    dP"
+    " **********                        ***                  "
+    "                               *******                  "
 };
 static const unsigned int sOregonLogoRows = 9;
 static const unsigned int sOregonLogoCols = 56;
@@ -776,7 +776,7 @@ void Console::DrawLogo()
         wattron(m_logoWindow, TermColor(COLOR_CYAN));
 
         mvwprintw(m_logoWindow, 1, sOregonLogoCols / 2 - (sizeof(FavString) - 1) / 2, "%s", FavString);
-        mvwprintw(m_logoWindow, sOregonLogoRows - 1, 0, "%s", "https://www.oregon-core.net");
+        mvwprintw(m_logoWindow, sOregonLogoRows - 1, 0, "%s", "Oregon Dead !!");
 
         wattroff(m_logoWindow, TermColor(COLOR_CYAN));
         wrefresh(m_logoWindow);

@@ -482,7 +482,7 @@ void WorldSession::SendStablePet(uint64 guid)
     }
 
     //                                                            0      1     2   3      4      5        6
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT owner, slot, id, entry, level, loyalty, name FROM character_pet WHERE owner = '%u' AND slot > 0 AND slot < 3", _player->GetGUIDLow());
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT owner, slot, id, entry, `level`, loyalty, name FROM character_pet WHERE owner = '%u' AND slot > 0 AND slot < 3", _player->GetGUIDLow());
 
     if (result)
     {

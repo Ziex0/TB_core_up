@@ -6617,7 +6617,7 @@ uint32 Player::GetGuildIdFromDB(uint64 guid)
 uint32 Player::GetRankFromDB(uint64 guid)
 {
     std::ostringstream ss;
-    ss << "SELECT rank FROM guild_member WHERE guid='" << guid << "'";
+    ss << "SELECT `rank` FROM guild_member WHERE guid='" << guid << "'";
     QueryResult_AutoPtr result = CharacterDatabase.Query(ss.str().c_str());
     if (result)
     {
@@ -14903,7 +14903,7 @@ uint32 Player::GetUInt32ValueFromDB(uint16 index, uint64 guid)
 bool Player::LoadFromDB(uint32 guid, SqlQueryHolder* holder)
 {
     //                                                       0     1        2     3     4     5      6       7      8   9      10           11            12
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid, account, data, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags,"
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid, account, data, name, race, `class`, gender, `level`, xp, money, playerBytes, playerBytes2, playerFlags,"
     // 13          14          15          16   17           18        19         20         21         22          23           24                 25
     //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost,"
     // 26                 27       28       29       30       31         32           33            34        35    36      37                 38         39

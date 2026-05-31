@@ -734,7 +734,7 @@ bool AuthSocket::_HandleLogonProof()
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
         // No SQL injection (escaped user name) and IP address as received by socket
         const char* K_hex = K.AsHexStr();
-        LoginDatabase.PExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = '%u', os = '%s', failed_logins = 0 WHERE username = '%s'", K_hex, getRemoteAddress().c_str(), GetLocaleByName(_localizationName), _os.c_str(), _safelogin.c_str() );
+        LoginDatabase.PExecute("UPDATE account SET session_key_auth = '%s', last_ip = '%s', last_login = NOW(), locale = '%u', os = '%s', failed_logins = 0 WHERE username = '%s'", K_hex, getRemoteAddress().c_str(), GetLocaleByName(_localizationName), _os.c_str(), _safelogin.c_str() );
         OPENSSL_free((void*)K_hex);
 
         // Finish SRP6 and send the final result to the client
@@ -851,7 +851,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     // Restore string order as its byte order is reversed
     std::reverse(_os.begin(), _os.end());
 
-    QueryResult_AutoPtr result = LoginDatabase.PQuery ("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str ());
+    QueryResult_AutoPtr result = LoginDatabase.PQuery ("SELECT session_key_auth FROM account WHERE username = '%s'", _safelogin.c_str ());
 
     // Stop if the account is not found
     if (!result)

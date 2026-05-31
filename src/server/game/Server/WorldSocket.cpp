@@ -670,19 +670,20 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     uint32 unk2;
     uint32 BuiltNumberClient;
     uint32 id, security;
-    //uint8 expansion = 0;
     LocaleConstant locale;
     std::string account;
     Sha1Hash sha1;
     BigNumber v, s, g, N;
     WorldPacket packet, SendAddonPacked;
-
     BigNumber K;
 
     // Read the content of the packet
     recvPacket >> BuiltNumberClient;
     recvPacket >> unk2;
     recvPacket >> account;
+
+    // FIX 1: Uppercase the account name — the client uses uppercase in SHA1 digest
+    std::transform(account.begin(), account.end(), account.begin(), ::toupper);
 
     recvPacket >> clientSeed;
     recvPacket.read (digest, 20);
@@ -698,41 +699,37 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     {
         packet.Initialize (SMSG_AUTH_RESPONSE, 1);
         packet << uint8 (AUTH_VERSION_MISMATCH);
-
         SendPacket (packet);
-
         sLog.outError ("WorldSocket::HandleAuthSession: Sent Auth Response (version mismatch).");
         return -1;
     }
 
     // Get the account information from the realmd database
-    std::string safe_account = account; // Duplicate, else will screw the SHA hash verification below
+    std::string safe_account = account; // already uppercased
     LoginDatabase.escape_string (safe_account);
-    // No SQL injection, username escaped.
 
-    QueryResult_AutoPtr result = LoginDatabase.PQuery ("SELECT "
-                                 "id, "                      //0
-                                 "sessionkey, "              //1
-                                 "last_ip, "                 //2
-                                 "locked, "                  //3
-                                 "v, "                       //4
-                                 "s, "                       //5
-                                 "expansion, "               //6
-                                 "mutetime, "                //7
-                                 "locale, "                  //8
-                                 "os "                       //9
-                                 "FROM account "
-                                 "WHERE username = '%s'",
-                                 safe_account.c_str ());
+    QueryResult_AutoPtr result = LoginDatabase.PQuery (
+                             "SELECT "
+                             "id, "                                    //0
+                             "UPPER(HEX(session_key_auth)), "          //1  TC: binary(40) -> hex
+                             "last_ip, "                               //2
+                             "locked, "                                //3
+                             "UPPER(HEX(verifier)), "                  //4  TC: binary(32) -> hex
+                             "UPPER(HEX(salt)), "                      //5  TC: binary(32) -> hex
+                             "expansion, "                             //6
+                             "mutetime, "                              //7
+                             "locale, "                                //8
+                             "os "                                     //9
+                             "FROM account "
+                             "WHERE username = '%s'",
+                             safe_account.c_str ());
 
     // Stop if the account is not found
     if (!result)
     {
         packet.Initialize (SMSG_AUTH_RESPONSE, 1);
         packet << uint8 (AUTH_UNKNOWN_ACCOUNT);
-
         SendPacket (packet);
-
         sLog.outError ("WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
         return -1;
     }
@@ -743,58 +740,56 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     uint32 world_expansion = sWorld.getConfig(CONFIG_EXPANSION);
     if (expansion > world_expansion)
         expansion = world_expansion;
-    //expansion = ((sWorld.getConfig(CONFIG_EXPANSION) > fields[6].GetUInt8()) ? fields[6].GetUInt8() : sWorld.getConfig(CONFIG_EXPANSION));
 
     N.SetHexStr ("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
     g.SetDword (7);
 
     v.SetHexStr(fields[4].GetString());
-    s.SetHexStr (fields[5].GetString ());
+    s.SetHexStr(fields[5].GetString());
 
-    const char* sStr = s.AsHexStr ();                       //Must be freed by OPENSSL_free()
-    const char* vStr = v.AsHexStr ();                       //Must be freed by OPENSSL_free()
-
-    DEBUG_LOG ("WorldSocket::HandleAuthSession: (s,v) check s: %s v: %s",
-               sStr,
-               vStr);
-
+    const char* sStr = s.AsHexStr();
+    const char* vStr = v.AsHexStr();
+    DEBUG_LOG ("WorldSocket::HandleAuthSession: (s,v) check s: %s v: %s", sStr, vStr);
     OPENSSL_free ((void*) sStr);
     OPENSSL_free ((void*) vStr);
 
-    // Re-check ip locking (same check as in realmd).
-    if (fields[3].GetUInt8 () == 1) // if ip is locked
+    // Re-check ip locking
+    if (fields[3].GetUInt8 () == 1)
     {
         if (strcmp (fields[2].GetString (), GetRemoteAddress ().c_str ()))
         {
             packet.Initialize (SMSG_AUTH_RESPONSE, 1);
             packet << uint8 (AUTH_FAILED);
             SendPacket (packet);
-
             sLog.outBasic ("WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs).");
             return -1;
         }
     }
 
     id = fields[0].GetUInt32 ();
-    K.SetHexStr (fields[1].GetString ());
+    std::string kHex = fields[1].GetString();
+	std::string kHexReversed = "";
+	for (int i = (int)kHex.length() - 2; i >= 0; i -= 2)
+		kHexReversed += kHex.substr(i, 2);
+	K.SetHexStr(kHexReversed.c_str());
 
     time_t mutetime = time_t (fields[7].GetUInt64 ());
     std::string os = fields[9].GetString();
-
     locale = LocaleConstant (fields[8].GetUInt8 ());
     if (locale >= MAX_LOCALE)
         locale = LOCALE_enUS;
 
-    // Checks gmlevel per Realm
-    result =
-        LoginDatabase.PQuery ("SELECT "
-                              "RealmID, "            //0
-                              "gmlevel "             //1
-                              "FROM account_access "
-                              "WHERE id = '%d'"
-                              " AND (RealmID = '%d'"
-                              " OR RealmID = '-1')",
-                              id, realmID);
+    // FIX 2: account_access query — TC renamed id->AccountID, gmlevel->SecurityLevel
+    result = LoginDatabase.PQuery (
+        "SELECT "
+        "RealmID, "           //0
+        "SecurityLevel "      //1  was: gmlevel
+        "FROM account_access "
+        "WHERE AccountID = '%d'"   // was: id
+        " AND (RealmID = '%d'"
+        " OR RealmID = '-1')",
+        id, realmID);
+
     if (!result)
         security = 0;
     else
@@ -803,21 +798,18 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         security = fields[1].GetInt32();
     }
 
-    // Re-check account ban (same check as in realmd)
-    QueryResult_AutoPtr banresult = LoginDatabase.PQuery ("SELECT "
-                                    "bandate, "
-                                    "unbandate "
-                                    "FROM account_banned "
-                                    "WHERE id = '%u' "
-                                    "AND active = 1",
-                                    id);
+    // Re-check account ban
+    QueryResult_AutoPtr banresult = LoginDatabase.PQuery (
+        "SELECT bandate, unbandate "
+        "FROM account_banned "
+        "WHERE id = '%u' AND active = 1",
+        id);
 
-    if (banresult) // if account banned
+    if (banresult)
     {
         packet.Initialize (SMSG_AUTH_RESPONSE, 1);
         packet << uint8 (AUTH_BANNED);
         SendPacket (packet);
-
         sLog.outError ("WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
         return -1;
     }
@@ -830,23 +822,20 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     {
         WorldPacket Packet (SMSG_AUTH_RESPONSE, 1);
         Packet << uint8 (AUTH_UNAVAILABLE);
-
         SendPacket (packet);
-
         sLog.outDetail ("WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
         return -1;
     }
 
     // Check that Key and account name are the same on client and server
+    // FIX 1 ensures 'account' is uppercase here, matching what client used in SHA1
     Sha1Hash sha;
-
     uint32 t = 0;
     uint32 seed = m_Seed;
-
     sha.UpdateData (account);
-    sha.UpdateData ((uint8*) & t, 4);
-    sha.UpdateData ((uint8*) & clientSeed, 4);
-    sha.UpdateData ((uint8*) & seed, 4);
+    sha.UpdateData ((uint8*) &t, 4);
+    sha.UpdateData ((uint8*) &clientSeed, 4);
+    sha.UpdateData ((uint8*) &seed, 4);
     sha.UpdateBigNumbers (&K, NULL);
     sha.Finalize ();
 
@@ -854,46 +843,32 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     {
         packet.Initialize (SMSG_AUTH_RESPONSE, 1);
         packet << uint8 (AUTH_FAILED);
-
         SendPacket (packet);
-
         sLog.outError ("WorldSocket::HandleAuthSession: Sent Auth Response (authentification failed).");
         return -1;
     }
 
     std::string address = GetRemoteAddress();
-
     DEBUG_LOG ("WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.",
-               account.c_str(),
-               address.c_str());
+               account.c_str(), address.c_str());
 
-    // Update the last_ip in the database
-    // No SQL injection, username escaped.
     LoginDatabase.escape_string (address);
+    LoginDatabase.PExecute ("UPDATE account SET last_ip = '%s' WHERE username = '%s'",
+                            address.c_str(), safe_account.c_str());
 
-    LoginDatabase.PExecute ("UPDATE account "
-                            "SET last_ip = '%s' "
-                            "WHERE username = '%s'",
-                            address.c_str(),
-                            safe_account.c_str());
-
-    // NOTE ATM the socket is single-threaded, have this in mind ...
     ACE_NEW_RETURN (m_Session, WorldSession (id, this, security, expansion, mutetime, locale), -1);
 
     m_Crypt.SetKey(&K);
     m_Crypt.Init();
 
-    // Initialize Warden system only if it is enabled by config
     if (sWorld.getConfig(CONFIG_WARDEN_ENABLED))
         m_Session->InitWarden(&K, os);
 
-    // Sleep this Network thread for
     uint32 sleepTime = sWorld.getConfig(CONFIG_SESSION_ADD_DELAY);
     ACE_OS::sleep(ACE_Time_Value (0, sleepTime));
 
     sWorld.AddSession (m_Session);
 
-    // Create and send the Addon packet
     if (sAddOnHandler.BuildAddonPacket (&recvPacket, &SendAddonPacked))
         SendPacket(SendAddonPacked);
 

@@ -451,7 +451,7 @@ void ArenaTeam::SetStats(uint32 stat_type, uint32 value)
         break;
     case STAT_TYPE_RANK:
         m_stats.rank = value;
-        CharacterDatabase.PExecute("UPDATE arena_team_stats SET rank = '%u' WHERE arenateamid = '%u'", value, GetId());
+        CharacterDatabase.PExecute("UPDATE arena_team_stats SET `rank` = '%u' WHERE arenateamid = '%u'", value, GetId());
         break;
     default:
         sLog.outDebug("unknown stat type in ArenaTeam::SetStats() %u", stat_type);

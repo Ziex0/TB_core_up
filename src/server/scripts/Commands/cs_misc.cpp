@@ -1542,7 +1542,7 @@ public:
         // get additional information from DB
         else
         {
-            QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT totaltime, level, money, account, race, class FROM characters WHERE guid = '%u'", GUID_LOPART(targetGUID));
+            QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT totaltime, `level`, money, account, race, class FROM characters WHERE guid = '%u'", GUID_LOPART(targetGUID));
             if (!result)
             {
                 handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);

@@ -549,7 +549,7 @@ bool Guild::FillPlayerData(uint64 guid, MemberSlot* memslot)
 
         if (plClass < CLASS_WARRIOR || plClass >= MAX_CLASSES) // can be at broken `class` field
         {
-            sLog.outError("Player (GUID: %u) has a broken data in field characters.class.", GUID_LOPART(guid));
+            sLog.outError("Player (GUID: %u) has a broken data in field characters.`class`.", GUID_LOPART(guid));
             return false;
         }
     }
@@ -660,7 +660,7 @@ void Guild::ChangeRank(uint64 guid, uint32 newRank)
     if (player)
         player->SetRank(newRank);
 
-    CharacterDatabase.PExecute("UPDATE guild_member SET rank='%u' WHERE guid='%u'", newRank, GUID_LOPART(guid));
+    CharacterDatabase.PExecute("UPDATE guild_member SET `rank`='%u' WHERE guid='%u'", newRank, GUID_LOPART(guid));
 }
 
 void Guild::SetPNOTE(uint64 guid, std::string pnote)
