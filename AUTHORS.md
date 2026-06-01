@@ -11,9 +11,10 @@ The project is currently hosted at https://oregon-core.net/ and developed under 
 ## History of development
 Development of this project dates back to 2010, and was developed under various umbrellas over time:
 * OregonCore project, 2009-2019, located at https://oregon-core.net/
-* TrinityCore project, 2008-2009 located at https://www.trinitycore.org/
+* TrinityCore project, 2008-202026 located at https://www.trinitycore.org/
 * Mangos project, 2005-2012 located at http://getmangos.com/
 * ScriptDev2 project, 2006-2012 located at http://www.scriptdev2.com/
+* OG_core project, 2026, located at https://github.com/Ziex0/TB_core_up
 
 ## Exceptions with third party libraries
 
