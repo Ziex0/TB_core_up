@@ -23,15 +23,15 @@ INSTANTIATE_SINGLETON_1(Console);
 
 static const char sOregonLogo[] =
 {
-    " **********                                             "
-    "MMP     dMM                                             "
-    "M' .mmm. `M                                             "
-    "M  MMMMM  M 88d888b. .d8888b. .d8888b. .d8888b. 88d888b."
-    "M  MMMMM  M 88'  `88 88ooood8 88'  `88 88'  `88 88'  `88"
-    "M. `MMM' .M 88       88.  ... 88.  .88 88.  .88 88    88"
-    "MMb     dMM dP       `******' `******* `88888P' dP    dP"
-    " **********                        ***                  "
-    "                               *******                  "
+    " **********           "
+    "***     ***           "
+    "M'  ***  `M            Core"
+    "M  *****  M   ******  "
+    "M  *****  M  88'  `88 "
+    "M.  ***  .M  **.  .** "
+    "***     ***  `******* "
+    " **********       *** "
+    "              ******* "
 };
 static const unsigned int sOregonLogoRows = 9;
 static const unsigned int sOregonLogoCols = 56;

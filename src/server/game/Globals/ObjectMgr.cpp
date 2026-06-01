@@ -1,5 +1,5 @@
 /*
- * This file is part of the OregonCore Project. See AUTHORS file for Copyright information
+ * This file is part of the @OG_core * 2026 . See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2831,11 +2831,12 @@ void ObjectMgr::LoadArenaTeams()
 {
     uint32 count = 0;
 
-    //                                                     0                      1    2           3    4               5
-    QueryResult_AutoPtr result = CharacterDatabase.Query( "SELECT arena_team.arenateamid,name,captainguid,type,BackgroundColor,EmblemStyle,"
-                                 //   6           7           8            9      10    11   12     13    14
-                                 "EmblemColor,BorderStyle,BorderColor, rating,games,wins,played,wins2,rank "
-                                 "FROM arena_team LEFT JOIN arena_team_stats ON arena_team.arenateamid = arena_team_stats.arenateamid ORDER BY arena_team.arenateamid ASC" );
+   QueryResult_AutoPtr result = CharacterDatabase.Query(
+    "SELECT arena_team.arenateamid,arena_team.`name`,captainguid,arena_team.`type`,"
+    "BackgroundColor,EmblemStyle,EmblemColor,BorderStyle,BorderColor,"
+    "rating,games,wins,played,wins2,`rank` "
+    "FROM arena_team LEFT JOIN arena_team_stats ON arena_team.arenateamid = arena_team_stats.arenateamid "
+    "ORDER BY arena_team.arenateamid ASC");
 
     if (!result)
     {
